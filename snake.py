@@ -30,6 +30,7 @@ class SNAKE:
 
     def draw_snake(self):
         self.update_head_graphics()
+        self.update_tail_graphics()
 
         #pentru marimea snake-ului
         for index,block in enumerate(self.body):
@@ -39,8 +40,27 @@ class SNAKE:
             #directia sarpelui
             if index == 0:
                 screen.blit(self.head,block_rect)
-            else:
-                pygame.draw.rect(screen,(150,100,100),block_rect)
+            elif index == len(self.body) -1:
+                screen.blit(self.tail,block_rect)
+                #snake middle blocks
+            else: 
+                previous_block = self.body[index + 1] - block
+                next_block = self.body[index - 1] - block
+                if previous_block.x == next_block.x:
+                    screen.blit(self.body_vertical,block_rect)
+                elif previous_block.y == next_block.y:
+                    screen.blit(self.body_horizontal,block_rect)
+                    #snake corners
+                else:
+                    if previous_block.x == -1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == -1:
+                        screen.blit(self.body_tl,block_rect)  
+                    elif previous_block.x == 1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == 1:
+                        screen.blit(self.body_tr,block_rect) 
+                    elif previous_block.x == 1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == 1:
+                        screen.blit(self.body_br,block_rect) 
+                    elif previous_block.x == -1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == -1:
+                        screen.blit(self.body_bl,block_rect)                
+                   
     
     def update_head_graphics(self):
         head_relation = self.body[1] - self.body[0]
@@ -49,7 +69,12 @@ class SNAKE:
         elif head_relation == Vector2(0,1): self.head = self.head_up
         elif head_relation == Vector2(0,-1): self.head = self.head_down
 
-
+    def update_tail_graphics(self):
+        tail_relation = self.body[-2] - self.body[-1]
+        if tail_relation == Vector2(1,0): self.tail = self.tail_left
+        elif tail_relation == Vector2(-1,0): self.tail = self.tail_right
+        elif tail_relation == Vector2(0,1): self.tail = self.tail_up
+        elif tail_relation == Vector2(0,-1): self.tail = self.tail_down
     def move_snake(self):
         #se creste sarpele miscandu-l cu o pozitie in directie fara sa se taie ultimul vector
         if self.newblock == True:
@@ -91,6 +116,7 @@ class MAIN:
         self.snake.move_snake()
         self.check_collision()
     def draw_elements(self):
+        self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
     def check_collision(self):
@@ -98,6 +124,20 @@ class MAIN:
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize()
             self.snake.grow()
+
+    def draw_grass(self):
+        grass_color = (52,136,60)
+        for row in range(cell_number):
+            if row % 2 == 0:
+                for col in range(cell_number):
+                    if col % 2 == 0:
+                        grass_rect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                        pygame.draw.rect(screen,grass_color,grass_rect)
+            else:
+                for col in range(cell_number):
+                    if col % 2 != 0:
+                             grass_rect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                             pygame.draw.rect(screen,grass_color,grass_rect)            
 
 pygame.init()
 cell_size = 40
@@ -131,7 +171,7 @@ while True:
                main_game.snake.direction = (Vector2(1,0))
             if event.key == pygame.K_LEFT:
                main_game.snake.direction = Vector2(-1,0)
-    screen.fill((175,220,80))
+    screen.fill((21,119,40))
     main_game.draw_elements()
     pygame.display.update()
     clock.tick(60)
